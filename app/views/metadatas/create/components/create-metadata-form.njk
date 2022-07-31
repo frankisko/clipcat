@@ -1,0 +1,35 @@
+<script type="text/javascript">
+    Vue.component("create-metadata-form", {
+        data : function() {
+            return {
+                name : '',
+                isDuplicated: false
+            }
+        },
+        methods: {
+            save: function() {
+                if (this.name == "") {
+                    ipcRenderer.send('display-dialog-bad-request', 'bad_request');
+                } else {
+                    var self = this;
+                    this.isDuplicated = false;
+
+                    axios.get("/metadata/{{ type }}/duplicated?q=" + this.name)
+                        .then(function (response) {
+                            if (response.data.total == 0) {
+                                self.$el.submit();
+                            } else {
+                                self.isDuplicated = true;
+                            }
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                    });
+                }
+            },
+            cancel: function() {
+                window.history.back();
+            }
+        }
+    });
+</script>

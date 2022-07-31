@@ -1,0 +1,77 @@
+<script type="text/javascript">
+    Vue.component("basic-search-form", {
+        data : function () {
+            return {
+                input: {
+                    text: '',
+                    type: 'filename',
+                    rating : [0,1,2,3,4,5],
+                },
+                timeout: false,
+                showMode: 1
+            };
+        },
+        computed: {
+            searchUrl : function () {
+                let url = "/file/search?" +
+                            "text=" + this.input.text +
+                            "&type=" + this.input.type +
+                            "&visibility=all" +
+                            "&rating=" + this.input.rating.join(",") +
+                            "&tags=";
+
+                return url;
+            }
+        },
+        mounted: function() {
+            this.search();
+        },
+        watch : {
+            "input.type" : function() {
+                this.search();
+            }
+        },
+        methods: {
+            searchKeyUp: function() {
+                if (this.timeout) {
+                    clearTimeout(this.timeout);
+                }
+                let self = this;
+                this.timeout = setTimeout(() => {
+                    self.search();
+                    console.log("searching");
+                }, 500);
+            },
+            search: function() {
+                this.$root.$emit('spinner-show', true);
+                this.$root.$emit('file-cards-show', false);
+
+                var self = this;
+
+                axios.get(this.searchUrl)
+                    .then(function (response) {
+                        self.$root.$emit('render-file-cards', response.data.rows);
+                        self.$root.$emit('file-cards-show', true);
+                        self.$root.$emit('spinner-show', false);
+                        self.$root.$emit('render-file-count', response.data.file_count);
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                });
+            },
+            openAdvancedSearch : function() {
+                this.$root.$emit('open-advanced-search', this.input.text);
+            },
+            changeCheckboxesNavbar: function(type) {
+                if (type == "N") {
+                    this.input.rating = [0];
+                } else if (type == "B") {
+                    this.input.rating = [3,4,5];
+                } else if (type == "A") {
+                    this.input.rating = [0,1,2,3,4,5];
+                }
+                this.search();
+            }
+        }
+    });
+</script>

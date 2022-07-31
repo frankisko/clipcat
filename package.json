@@ -1,0 +1,55 @@
+{
+  "name": "clipcat",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./app/main.js",
+  "scripts": {
+    "start": "electron .",
+    "rebuild": "electron-rebuild -f -w sqlite3",
+    "dist": "build -w --x64",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "4.0.3",
+    "electron-builder": "^20.44.4",
+    "electron-rebuild": "^1.8.8"
+  },
+  "dependencies": {
+    "axios": "^0.19.2",
+    "bootstrap": "3.3.7",
+    "cheerio": "^1.0.0-rc.5",
+    "cookie-parser": "^1.4.4",
+    "debug": "~2.6.9",
+    "directory-tree": "^2.2.4",
+    "express": "~4.16.0",
+    "filesize": "^4.2.1",
+    "hbs": "^4.0.6",
+    "http-errors": "~1.6.2",
+    "jquery": "3.1.0",
+    "knex": "^0.16.5",
+    "moment": "^2.23.0",
+    "morgan": "~1.9.0",
+    "nunjucks": "^3.2.1",
+    "path-helper": "file:app/local_modules/path-helper",
+    "popper.js": "^1.16.0",
+    "rimraf": "^2.7.1",
+    "sqlite3": "^4.1.1",
+    "tree-helper": "file:app/local_modules/tree-helper",
+    "underscore": "^1.9.2"
+  },
+  "build": {
+    "appId": "com.saralice.clipcat",
+    "win": {
+      "target": "portable"
+    },
+    "npmRebuild": true,
+    "extraResources": [
+      "app/data/db.sqlite",
+      "app/libs/ffmpeg/*.exe",
+      "app/public/tmp",
+      "app/public/collections"
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+<script type="text/x-template" id="copy-to-clipboard-button-template">
+    <button class="btn btn-info btn-sm" @click="copyToClipboard">Copy to clipboard</button>
+</script>
+
+<script type="text/javascript">
+    Vue.component("copy-to-clipboard-button", {
+        props: ["clipboardText"],
+        template : "#copy-to-clipboard-button-template",
+        methods: {
+            copyToClipboard() {
+                ipcRenderer.send('copy-to-clipboard', this.clipboardText);
+            }
+        }
+    });
+</script>

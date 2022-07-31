@@ -1,0 +1,41 @@
+<script type="text/javascript">
+    Vue.component("scrape-component", {
+        data: function() {
+            return  {
+                left: "Pending...",
+                progress: 0,
+                filename : "Pending..."
+            };
+        },
+        computed: {
+            progressPercentage: function () {
+                return this.progress + "%";
+            }
+        },
+        methods: {
+            scrape : function() {
+                var self = this;
+                axios.get("/collection/{{ id_collection }}/scrapping")
+                    .then(function (response) {
+                        if (response.data.left > 0) {
+                            self.filename = response.data.file.name
+                            self.left = response.data.left;
+                            self.progress = response.data.progress
+
+                            document.title = "Clipcat - Scrapping... " + self.progress + "%";
+
+                            self.scrape();
+                        } else {
+                            ipcRenderer.send("end-scrapper", {{ id_collection }});
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            }
+        },
+        mounted: function() {
+            this.scrape();
+        }
+    });
+</script>

@@ -1,0 +1,27 @@
+{% extends "layouts/base/base.njk" %}
+
+{% block content %}
+    <!-- Page Heading -->
+    <h1 class="h3 mb-2 text-gray-800">Scrapper</h1>
+
+    <scrape-component inline-template>
+        {% raw %}
+            <div>
+                <div class="progress">
+                    <div id="da-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" :aria-valuenow="progress" aria-valuemin="0" aria-valuemax="100" :style="{ width: progressPercentage }"></div>
+                </div>
+
+                <p>Processed file : {{ filename }}</p>
+
+                <p>Progress: {{ progress }}%</p>
+
+                <p>Left: {{ left }}</p>
+            </div>
+        {% endraw %}
+    </scrape-component>
+
+{% endblock %}
+
+{% block scripts_footer %}
+    {% include "collections/scrape/components/scrape-component.njk" %}
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends "layouts/base/base.njk" %}
+
+{% block content %}
+    <!-- Page Heading -->
+    <h1 class="h3 mb-2 text-gray-800">Files statistics</h1>
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            {% if rows.length %}
+                <div class="table-responsive">
+                    <data-tables inline-template>
+                        <table class="table table-bordered table-striped" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Size</th>
+                                    <th>Created at</th>
+                                    <th>Last viewed</th>
+                                    <th>Views</th>
+                                    <th>Rating</th>
+                                    <th>Tags</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in rows %}
+                                    <tr>
+                                        <td>{{ row.name }}</td>
+                                        <td>{{ row.size }}</td>
+                                        <td>{{ row.created_at }}</td>
+                                        <td>{{ row.last_viewed }}</td>
+                                        <td>{{ row.view_count }}</td>
+                                        <td>{{ row.rating }}</td>
+                                        <td>{{ row.tags_count }}</td>
+                                        <td>
+                                            <a href="/file/{{ row.id_file }}/info" title="Info"><i class="fa fa-info-circle"> </i></a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </data-tables>
+                </div>
+            {% else %}
+                No records found
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block styles %}
+    <link href="/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block scripts_footer %}
+    <script type="text/javascript">
+        const filesize = require("filesize");
+        const moment = require("moment");
+        var dataTableConf = {
+            "columnDefs": [
+                {
+                    "render": function ( data, type, row ) {
+                        if ( type === "display" ) {
+                            return filesize(data);
+                        }
+                        return data;
+                    },
+                    "targets": 1
+                },
+                {
+                    "targets": [2,3],
+                    render: function ( data, type, row ) {
+                        if ( type === "display" ) {
+                            if (data == "") {
+                                return "";
+                            } else {
+                                return moment.unix(data).format("DD/MM/YYYY HH:mm:ss");
+                            }
+                        }
+                        return data;
+                    }
+                },
+                {
+                    "targets": 7,
+                    "orderable": false
+                }
+            ]
+        };
+    </script>
+
+    {% include "components/data_tables.njk" %}
+{% endblock %}

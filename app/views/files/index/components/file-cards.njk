@@ -1,0 +1,116 @@
+<script type="text/x-template" id="file-card-template">
+    {% raw %}
+        <div v-if="show">
+            <div v-for="(folder, indexFolder) in rows" :key="indexFolder">
+                <div class="row" style="margin-left: -23px; margin-right: -23px; margin-top: 15px;">
+                    <div class="col-lg-12">
+                        <div class="card bg-gradient-primary text-white">
+                            <div class="card-body" style="padding: 0.5rem;">
+                                <a class="action-button action-explore" href="#" @click.prevent="openFolder(folder.path)" title="Open folder" style="text-decoration: none; color: #FFFFFF; font-size:16px;">
+                                    <i class="fa fa-folder"> </i>
+                                    {{ folder.base_path }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div v-for="(file, indexFile) in folder.files" :key="indexFile" class="card cardVideo" style="padding-left: 0; padding-right: 0">
+                        <div>
+                            <div v-if="file.scrapped" class="file-thumbnail">
+                                <video-preview
+                                    :thumbnail-url="'/collections/' + file.id_collection + '/thumbnails/' + file.id_file + '.jpg'"
+                                    :video-url="'/collections/' + file.id_collection + '/previews/' + file.id_file + '.mp4'"
+                                    :cover-url="file.has_cover? '/collections/' + file.id_collection + '/covers/' + file.id_file + '.jpg' : '/images/no_preview.jpg'"
+                                    :file="file.full_path"
+                                    :id-file="file.id_file"
+                                    >
+                                </video-preview>
+                            </div>
+                            <img v-else src="/images/no_preview.jpg" class="card-img-top">
+                        </div>
+                        <div class="card-body" style="padding: 0.5rem;">
+                            <!-- <h5 class="card-title"></h5> -->
+                            <p class="card-text">{{ file.name }}</p>
+                        </div>
+                        <div class="card-footer" style="padding: 0.5rem;">
+                            <small class="text-muted">
+                                Id: {{ file.id_file }}
+                                <template v-if="file.scrapped">
+                                    , {{ file.human_size }}
+                                    , {{ (file.duration > 0)? Math.floor(file.duration / 60) : '0' }} min
+                                </template>
+                                <template v-else>
+                                    , Not scrapped
+                                </template>
+                            </small>
+                            <p style="margin-bottom: 0px;">
+                                <i class="fa fa-tag" :class="{'active-icon': file.tags_count > 0}" :title="'Tags: ' + file.tags_count"> </i>
+                            </p>
+                            <div>
+                                <div @mouseup.right="rating(indexFolder, indexFile, 0)" style="float:left">
+                                    <i class="fa fa-star" @click="rating(indexFolder, indexFile, 1)" :class="{ 'star-full': file.rating >= 1 }"> </i>
+                                    <i class="fa fa-star" @click="rating(indexFolder, indexFile, 2)" :class="{ 'star-full': file.rating >= 2 }"> </i>
+                                    <i class="fa fa-star" @click="rating(indexFolder, indexFile, 3)" :class="{ 'star-full': file.rating >= 3 }"> </i>
+                                    <i class="fa fa-star" @click="rating(indexFolder, indexFile, 4)" :class="{ 'star-full': file.rating >= 4 }"> </i>
+                                    <i class="fa fa-star" @click="rating(indexFolder, indexFile, 5)" :class="{ 'star-full': file.rating == 5 }"> </i>
+                                </div>
+                                <div style="float:right">
+                                    <i class="fa fa-eye" :class="{'active-icon': file.view_count > 0}" :title="(file.view_count > 0)? 'Views: '+ file.view_count : 'Not viewed'"> </i>
+                                    <a :href="'/file/' + file.id_file +'/info'" title="Info"><i class="fa fa-info-circle"> </i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endraw %}
+</script>
+
+<script type="text/javascript">
+    Vue.component("file-cards", {
+        template: '#file-card-template',
+        data : function () {
+            return {
+                rows: [],
+                show: true
+            };
+        },
+        methods: {
+            openFolder : function(folder) {
+                ipcRenderer.send("open-folder", folder);
+            },
+            rating : function(indexFolder, indexFile, rating) {
+                let idFile = this.rows[indexFolder].files[indexFile].id_file;
+
+                let self = this;
+
+                axios.post("/file/" + idFile + "/rating", {
+                    rating: rating
+                    })
+                    .then(function (response) {
+                    console.log("rated")
+                        self.rows[indexFolder].files[indexFile].rating = rating;
+
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                });
+            },
+            playVideo: function() {
+
+            }
+        },
+        mounted: function() {
+            this.$root.$on('render-file-cards', (rows) => {
+                this.rows = rows;
+            });
+
+            this.$root.$on('file-cards-show', (show) => {
+                this.show = show;
+            });
+        }
+    });
+</script>

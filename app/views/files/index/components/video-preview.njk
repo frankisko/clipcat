@@ -1,0 +1,60 @@
+<script type="text/x-template" id="video-preview-template">
+    {% raw %}
+        <div>
+            <img v-show="showThumbnail" :src="thumbnailUrl" class="card-img-top" @mouseover="playVideo"/>
+            <video v-show="showVideo" muted style="width: 100%;height: auto;" ref="videoRef" @mouseout="stopVideo" @click="openVideo">
+                <source src="" loop type="video/mp4">
+                    Your browser does not support the video tag.
+            </video>
+        </div>
+    {% endraw %}
+</script>
+
+<script type="text/javascript">
+    Vue.component("video-preview", {
+        template: '#video-preview-template',
+        props: ['thumbnailUrl', 'coverUrl', 'videoUrl', 'file', 'idFile'],
+        data : function () {
+            return {
+                showThumbnail: true,
+                showVideo: false,
+            };
+        },
+        methods: {
+            playVideo : function() {
+                if (this.videoUrl != '') {
+                    this.showThumbnail = false;
+
+                    this.$refs.videoRef.src = this.videoUrl;
+                    this.$refs.videoRef.play();
+
+                    this.showVideo = true;
+                }
+            },
+            stopVideo : function() {
+                this.$refs.videoRef.src = '';
+
+                this.$refs.videoRef.pause();
+                this.$refs.videoRef.currentTime = 0;
+
+                this.showVideo = false;
+                this.showThumbnail = true;
+            },
+            openVideo : function() {
+                ipcRenderer.send("open-file", this.file);
+
+                var self = this;
+
+                axios.get('/file/' + self.idFile + '/setMeta')
+                    .then(function (response) {
+                        console.log("done");
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            }
+        },
+        mounted: function() {
+        }
+    });
+</script>

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Clipcat</title>
+
+    <!-- Custom fonts for this template -->
+    <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/css/sb-admin-2.css" rel="stylesheet">
+
+    <link href="/vendor/multiselect/css/multi-select.css" media="screen" rel="stylesheet" type="text/css">
+
+    <script src="/vendor/vue/vue.js"></script>
+
+    {% block styles %}
+    {% endblock %}
+
+    <style type="text/css">
+        .image-mode {
+            color: cornflowerblue;
+            height: 100%;
+        }
+
+        .cardVideo {
+            width: 20%;
+        }
+
+        .cardCover {
+            width: 13%;
+        }
+    </style>
+
+    {% block scripts_header %}
+    {% endblock %}
+
+    <script type="text/javascript">
+        window.jQuery = window.$ = require('jquery');
+        const { ipcRenderer } = require("electron");
+        const axios = require('axios');
+
+        ipcRenderer.on('go-to-page', (event, payload) => {
+            window.location.href = "http://localhost:3002/" + payload;
+        });
+
+        ipcRenderer.on('about', (event, payload) => {
+            alert("Clipcat v1.0");
+        });
+    </script>
+</head>
+
+<body id="page-top" class="sidebar-toggled">
+    <div id="wrapper">
+        {% if enable_sidebar %}
+            <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion toggled" id="accordionSidebar">
+
+                <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/collection/main">
+                    <div class="sidebar-brand-text mx-3">Clipcat</div>
+                </a>
+
+                <hr class="sidebar-divider my-0">
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/collection/{{ id_collection }}/structure">
+                        <i class="fas fa-fw fa-sync"></i>
+                        <span>Scrape</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/file/index">
+                        <i class="fas fa-fw fa-th"></i>
+                        <span>Gallery</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/file/statistics">
+                        <i class="fas fa-fw fa-table"></i>
+                        <span>Statistics</span>
+                    </a>
+                </li>
+
+                <li class="nav-item {% if active_menu_metadata %} active {% endif %}">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMetadata" aria-expanded="true" aria-controls="collapseMetadata">
+                        <i class="fas fa-fw fa-tag"></i>
+                        <span>Metadata</span>
+                    </a>
+                    <div id="collapseMetadata" class="collapse" aria-labelledby="headingMetadata" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <a class="collapse-item" href="/metadata/group/index">Groups</a>
+                            <a class="collapse-item" href="/metadata/tag/index">Tags</a>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        {% endif %}
+    <!-- End of Sidebar -->
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+        <!-- Main Content -->
+        <div id="content">
+
+            <!-- Topbar -->
+            {% if enable_topbar %}
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                    <!-- Sidebar Toggle (Topbar) -->
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                        <i class="fa fa-bars"></i>
+                    </button>
+
+                    <!-- Topbar Search -->
+                    {% if enable_search %}
+                        <basic-search-form inline-template>
+                            <div>
+                                <form id="search_form" class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-200 navbar-search">
+                                    <div class="input-group" style="width: 700px;">
+                                        <input type="text" v-model="input.text" @keyup="searchKeyUp" class="form-control bg-light border-0" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
+                                        <select class="form-control" v-model="input.type">
+                                            <option value="filename">Filename</option>
+                                            <option value="path">Path</option>
+                                        </select>
+                                        <div class="input-group-append">
+                                            <button type="submit" disabled style="display: none" aria-hidden="true"></button>
+                                            <button type="button" class="btn btn-primary" @click="search">
+                                                <i class="fas fa-search fa-sm"></i>
+                                            </button>
+                                        </div>
+
+                                        <button type="button" @click="openAdvancedSearch" class="btn btn-primary" style="margin-left: 10px;">
+                                            Advanced search
+                                        </button>
+
+                                        <button type="button" @click="changeCheckboxesNavbar('N')" class="btn btn-info btn-sm" title="N - Not viewed" style="margin-left: 10px;"> N </button>
+
+                                        <button type="button" @click="changeCheckboxesNavbar('B')" class="btn btn-info btn-sm" title="B - Best" style="margin-left: 10px;"> B </button>
+
+                                        <button type="button" @click="changeCheckboxesNavbar('A')" class="btn btn-info btn-sm" title="A - All" style="margin-left: 10px;"> A </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </basic-search-form>
+
+                        <advanced-search-modal inline-template>
+                            <div class="modal fade" id="advancedSearchModal" tabindex="-1" role="dialog" aria-labelledby="advancedSearchModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg" role="document">
+                                    <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="advancedSearchModalLabel">Advanced search</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div>
+                                            <label for="advanced_text">Search for:</label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" v-model="input.text" placeholder="Text">
+                                                <div class="input-group-append">
+                                                    <select class="form-control" v-model="input.type">
+                                                        <option value="filename">Filename</option>
+                                                        <option value="path">Path</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <hr />
+                                            <div class="form-group">
+                                                <label for="advanced_visibility">Visibility</label>
+                                                <select class="form-control" v-model="input.visibility" required>
+                                                    <option value="all">Show all files</option>
+                                                    <option value="viewed">Show only viewed files</option>
+                                                    <option value="not_viewed">Show only not viewed files</option>
+                                                </select>
+                                            </div>
+                                            <hr />
+                                            <div class="form-group">
+                                                <label>Rating</label>
+                                                <br />
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="checkbox" v-model.number="input.rating" value="0">
+                                                    <label class="form-check-label" for="ratingCheckbox0">0</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="checkbox" v-model.number="input.rating" value="1">
+                                                    <label class="form-check-label" for="ratingCheckbox1">1</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="checkbox" v-model.number="input.rating" value="2">
+                                                    <label class="form-check-label" for="ratingCheckbox2">2</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="checkbox" v-model.number="input.rating" value="3">
+                                                    <label class="form-check-label" for="ratingCheckbox3">3</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="checkbox" v-model.number="input.rating" value="4">
+                                                    <label class="form-check-label" for="ratingCheckbox4">4</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="checkbox" v-model.number="input.rating" value="5">
+                                                    <label class="form-check-label" for="ratingCheckbox5">5</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <button @click="change_checkboxes('N')" class="btn btn-info btn-sm" title="N - Not viewed">N</button>
+                                                    &nbsp;&nbsp;<button @click="change_checkboxes('B')" class="btn btn-info btn-sm" title="B - Best">B</button>
+                                                    &nbsp;&nbsp;<button @click="change_checkboxes('A')" class="btn btn-info btn-sm" title="A - All">A</button>
+                                                </div>
+                                            </div>
+                                            <hr />
+                                            <div class="form-group">
+                                                <ul class="nav nav-tabs" id="myTabSearch" role="tablist">
+                                                    <li class="nav-item">
+                                                        <a class="nav-link" id="groups-tab-search" data-toggle="tab" href="#groups-search" role="tab" aria-controls="groups-search" aria-selected="false">Groups</a>
+                                                    </li>
+                                                    <li class="nav-item">
+                                                        <a class="nav-link active" id="tags-tab-search" data-toggle="tab" href="#tags-search" role="tab" aria-controls="tags-search" aria-selected="true">Tags</a>
+                                                    </li>
+                                                </ul>
+                                                <div class="tab-content" id="myTabContentSearch">
+                                                    <div class="tab-pane fade" id="groups-search" role="tabpanel" aria-labelledby="groups-tab-search">
+                                                        <multi-select inline-template type="groups">
+                                                            <select class="form-control" multiple>
+                                                                {% for group in groups %}
+                                                                    <option value="{{ group.id_metadata }}">{{ group.name }}</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </multi-select>
+                                                    </div>
+                                                    <div class="tab-pane fade show active" id="tags-search" role="tabpanel" aria-labelledby="tags-tab-search">
+                                                        <multi-select inline-template type="tags">
+                                                            <select class="form-control" multiple>
+                                                                {% for tag in tags %}
+                                                                    <option value="{{ tag.id_metadata }}">{{ tag.name }}</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </multi-select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" @click="search" class="btn btn-primary">Search</button>
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </advanced-search-modal>
+                    {% endif %}
+                </nav>
+            {% else %}
+                <br />
+            {% endif %}
+            <!-- End of Topbar -->
+
+            <!-- Begin Page Content -->
+            <div id="page-wrapper" class="container-fluid">
+                {% block content %}
+                {% endblock %}
+            </div>
+        <!-- /.container-fluid -->
+      </div>
+      <!-- End of Main Content -->
+    </div>
+    <!-- End of Content Wrapper -->
+  </div>
+  <!-- End of Page Wrapper -->
+
+  <!-- Bootstrap core JavaScript-->
+  <script src="/vendor/jquery/jquery.min.js"></script>
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Core plugin JavaScript-->
+  <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Custom scripts for all pages-->
+  <script src="/js/sb-admin-2.js"></script>
+
+  {% if enable_search %}
+    {% include "layouts/base/components/basic-search-form.njk" %}
+    {% include "layouts/base/components/advanced-search-modal.njk" %}
+  {% endif %}
+
+  {% block scripts_footer %}
+  {% endblock %}
+
+  <script type="text/javascript">
+    var app = new Vue({
+        el: '#wrapper'
+    });
+ </script>
+</body>
+</html>

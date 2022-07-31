@@ -1,0 +1,35 @@
+{% extends "layouts/base/base.njk" %}
+
+{% block content %}
+    <!-- Page Heading -->
+    <file-count></file-count>
+
+    <spinner-container></spinner-container>
+
+    <file-cards></file-cards>
+{% endblock %}
+
+{% block styles %}
+    <link href="/vendor/multiselect/css/multi-select.css" media="screen" rel="stylesheet" type="text/css">
+    <style type="text/css">
+        .star-full {
+            color: #EEEE00;
+            text-shadow: 0 0 5px #000;
+        }
+
+        .active-icon {
+            color: green;
+        }
+    </style>
+{% endblock %}
+
+{% block scripts_footer %}
+    <script src="/vendor/jquery-quicksearch/jquery.quicksearch.js" type="text/javascript"></script>
+    <script src="/vendor/multiselect/js/jquery.multi-select.js" type="text/javascript"></script>
+
+    {% include "files/index/components/file-count.njk" %}
+    {% include "files/index/components/video-preview.njk" %}
+    {% include "files/index/components/multi-select.njk" %}
+    {% include "files/index/components/file-cards.njk" %}
+    {% include "files/index/components/spinner-container.njk" %}
+{% endblock %}

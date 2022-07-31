@@ -1,0 +1,27 @@
+<script type="text/javascript">
+    Vue.component("create-collection-form", {
+        data : function() {
+            return {
+                name : '',
+                path : ''
+            }
+        },
+        methods: {
+            save: function() {
+                if (this.name != '' && this.path != '') {
+                    this.$el.submit();
+                } else {
+                    ipcRenderer.send('display-dialog-bad-request', 'bad_request');
+                }
+            },
+            openFileDialog : function() {
+                ipcRenderer.send('open-directory-dialog');
+            }
+        },
+        mounted: function() {
+            ipcRenderer.on('selected-item', (event, path) => {
+                this.path = path;
+            });
+        }
+    });
+</script>

@@ -1,0 +1,68 @@
+{% extends "layouts/base/base.njk" %}
+
+{% block content %}
+    <!-- Page Heading -->
+    <h1 class="h3 mb-2 text-gray-800">{{ properties.title }}</h1>
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <div class="text-right">
+                    <span><a href="/metadata/{{ type }}/create"><i class="fa fa-plus"></i> Add</a></span>
+                </div>
+            </h6>
+        </div>
+        <div class="card-body">
+            {% if rows.length %}
+                <div class="table-responsive">
+                    <data-tables inline-template>
+                        <table class="table table-bordered table-striped" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Files</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in rows %}
+                                    <tr>
+                                        <td>{{ row.name }}</td>
+                                        <td>{{ row.total }}</td>
+                                        <td>
+                                            <a href="/metadata/{{ type }}/{{ row.id_metadata }}/edit" title="Edit"><i class="fa fa-edit"> </i></a>
+                                            &nbsp;&nbsp;&nbsp;&nbsp;
+                                            <a href="#" @click="deleteRow('/metadata/{{ type }}/{{ row.id_metadata }}/destroy')" title="Delete"><i class="fa fa-times" style="color: red"> </i></a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </data-tables>
+                </div>
+            {% else %}
+                No records found
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block styles %}
+    <link href="/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block scripts_footer %}
+    <script type="text/javascript">
+        var dataTableConf = {
+            "columnDefs": [
+                {
+                    "targets": 2,
+                    "orderable": false
+                }
+            ]
+        };
+    </script>
+
+    {% include "components/data_tables.njk" %}
+{% endblock %}

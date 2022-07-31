@@ -1,0 +1,68 @@
+{% extends "layouts/base/base.njk" %}
+
+{% block content %}
+    <!-- Page Heading -->
+	<h1 class="h3 mb-2 text-gray-800">Tutorial</h1>
+
+	<!-- DataTales Example -->
+	<div class="card shadow mb-4">
+		<div class="card-header py-3">
+			<h6 class="m-0 font-weight-bold text-primary">
+				<div class="text-left">
+					<span>Step 1: Create a collection</span>
+				</div>
+			</h6>
+		</div>
+		<div class="card-body">
+			<p><b>1.1</b> When you open the program (or you click on "File > Main" menu), you can create a collection.</p>
+			<p><b>1.2</b> Write a name for the collection, and select the folder that contains the videos. Then click on <b>submit</b>.</p>
+			<img src="/images/tutorial/step01.jpg"/>
+		</div>
+	</div>
+
+	<div class="card shadow mb-4">
+		<div class="card-header py-3">
+			<h6 class="m-0 font-weight-bold text-primary">
+				<div class="text-left">
+					<span>Step 2: Scrape the collection</span>
+				</div>
+			</h6>
+		</div>
+		<div class="card-body">
+			<p><b>2.1</b> When you create a collection (or select it from the main menu), you will be in the video page. You need to scrape your collection. To do so, click on "Collection > Scrape" in the sidebar menu.</p>
+			<img src="/images/tutorial/step02.jpg"/>
+			<br /><br />
+			<p><b>2.2</b>  A new window will appear. The information about the current progress of the scrapping will appear. This can take a while depending of the amount of videos.</p>
+			<img src="/images/tutorial/step03.jpg"/>
+		</div>
+	</div>
+
+	<div class="card shadow mb-4">
+		<div class="card-header py-3">
+			<h6 class="m-0 font-weight-bold text-primary">
+				<div class="text-left">
+					<span>Step 3: View your videos</span>
+				</div>
+			</h6>
+		</div>
+		<div class="card-body">
+			<p>
+				<b>3.1</b> To view your videos, click on "Video > Gallery" in the sidebar menu. You don't have to wait for the scrapping process,
+				you can view your videos. The ones that haven't been scrapped will appear as <b>pending.</b></p>
+			<img src="/images/tutorial/step04.jpg"/>
+		</div>
+	</div>
+
+	<div class="card shadow mb-4">
+		<div class="card-header py-3">
+			<h6 class="m-0 font-weight-bold text-primary">
+				<div class="text-left">
+					<span>Step 4: Scrapping new videos</span>
+				</div>
+			</h6>
+		</div>
+		<div class="card-body">
+			<p><b>4.1</b> If you have added videos for your collection, you only need to repeat step 2. The pending videos will be scrapped.</p>
+		</div>
+	</div>
+{% endblock %}

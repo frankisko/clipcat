@@ -1,0 +1,18 @@
+<script src="/vendor/bootstrap-tagsinput/bootstrap-tagsinput.min.js"></script>
+
+<script type="text/x-template" id="tags-input-template">
+    <input type="text" class="form-control" :name="name" :aria-describedby="help" placeholder="" :value="data" />
+</script>
+
+<script type="text/javascript">
+    Vue.component("tags-input", {
+        props: ["data", "name", "help"],
+        template: '#tags-input-template',
+        mounted: function() {
+            $(this.$el).tagsinput({
+                tagClass: "badge badge-pill badge-info",
+                trimValue: true
+            });
+        }
+    });
+</script>

@@ -1,0 +1,27 @@
+<script type="text/x-template" id="open-file-viewer-template">
+    <div @click="openFileViewer">
+        <img :src="thumbnailUrl" class="card-img-top">
+    </div>
+</script>
+
+<script type="text/javascript">
+    Vue.component("open-file-viewer", {
+        props: ["thumbnailUrl", "idFile", "file"],
+        template : "#open-file-viewer-template",
+        methods: {
+            openFileViewer: function() {
+                ipcRenderer.send("open-file", this.file);
+
+                var self = this;
+
+                axios.get('/file/' + self.idFile + '/setMeta')
+                    .then(function (response) {
+                        console.log("done");
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            }
+        }
+    });
+</script>

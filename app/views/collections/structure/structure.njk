@@ -1,0 +1,11 @@
+{% extends "layouts/base/base.njk" %}
+
+{% block scripts_footer %}
+    <!-- Page Heading -->
+    <script type="text/javascript">
+        //ipc
+        ipcRenderer.send("begin-scrapper", {{ id_collection }});
+
+        window.location.replace("http://localhost:3002/file/index");
+    </script>
+{% endblock %}

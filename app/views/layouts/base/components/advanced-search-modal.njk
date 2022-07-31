@@ -1,0 +1,83 @@
+<script type="text/javascript">
+    Vue.component("advanced-search-modal", {
+        data : function () {
+            return {
+                input: {
+                    text: '',
+                    type: 'filename',
+                    visibility: 'all',
+                    rating : [0,1,2,3,4,5],
+                    groups: [],
+                    tags : []
+                },
+                isSearching: false,
+                timeout: false
+            };
+        },
+        computed: {
+            searchUrl : function () {
+                let url = "/file/search?" +
+                            "text=" + this.input.text +
+                            "&type=" + this.input.type +
+                            "&visibility=" + this.input.visibility +
+                            "&rating=" + this.input.rating.join(",") +
+                            "&groups=" + this.input.groups.join(",") +
+                            "&tags=" + this.input.tags.join(",");
+
+                return url;
+            }
+        },
+        mounted: function() {
+            let self = this;
+            self.$root.$on('open-advanced-search', function(text)  {
+                self.input.text = text;
+                $(self.$el).modal();
+            });
+
+            self.$root.$on('multiselect-after-select', function(value, type)  {
+                self.input[type].push(value);
+            });
+
+            self.$root.$on('multiselect-after-deselect', function(value, type)  {
+                let index = self.input[type].indexOf(value);
+
+                if (index != -1) {
+                    self.input[type].splice(index, 1);
+                }
+            });
+        },
+        methods: {
+            search: function() {
+                this.isSearching = true;
+                this.$root.$emit('spinner-show', true);
+                this.$root.$emit('file-cards-show', false);
+
+                var self = this;
+
+                axios.get(this.searchUrl)
+                    .then(function (response) {
+                        self.$root.$emit('render-file-cards', response.data.rows);
+                        self.$root.$emit('file-cards-show', true);
+                        self.$root.$emit('spinner-show', false);
+                        self.$root.$emit('render-file-count', response.data.file_count);
+
+                        $(self.$el).modal("hide");
+
+                        self.isSearching = false;
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                });
+            },
+            change_checkboxes: function(type) {
+                if (type == "N") {
+                    this.input.rating = [0];
+                } else if (type == "B") {
+                    this.input.rating = [3,4,5];
+                } else if (type == "A") {
+                    this.input.rating = [0,1,2,3,4,5];
+                }
+            }
+        }
+    });
+</script>
